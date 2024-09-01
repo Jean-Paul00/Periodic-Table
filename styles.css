@@ -1,3 +1,4 @@
+/* Variables de couleurs pour une personnalisation facile */
 :root {
     --primary-color: #ff69b4;
     --secondary-color: #ffd700;
@@ -5,12 +6,14 @@
     --background-color: #fff0f5;
 }
 
+/* Réinitialisation des marges et bordures */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Style général de la page */
 body {
     font-family: 'Montserrat', sans-serif;
     color: var(--text-color);
@@ -18,104 +21,112 @@ body {
     background: linear-gradient(45deg, #ff9a9e, #fad0c4, #ffecd2);
     background-size: 400% 400%;
     animation: gradientBG 15s ease infinite;
-    perspective: 1px;
-    transform-style: preserve-3d;
+    padding: 20px;
 }
 
+/* Conteneur principal pour le contenu */
 .container {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 90%;
+    margin: 50px auto;
     padding: 2rem;
+    background: var(--background-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
     position: relative;
     z-index: 1;
-    overflow: hidden;
-    transform: translateZ(0.5px) scale(0.9);
 }
 
+/* Styles pour les titres */
 h1, h2 {
     font-family: 'Dancing Script', cursive;
     color: var(--primary-color);
-    margin-bottom: 2rem;
-    animation: fadeInDown 1.5s ease-out, glow 2s ease-in-out infinite alternate;
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--primary-color), 0 0 40px var(--primary-color);
+    margin-bottom: 1.5rem;
+    animation: fadeInDown 1s ease-out;
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--primary-color);
 }
 
 h1 {
-    font-size: 4rem;
+    font-size: 2.5rem;
 }
 
 h2 {
-    font-size: 3rem;
+    font-size: 2rem;
 }
 
+/* Styles pour les paragraphes */
 p {
-    font-size: 1.2rem;
+    font-size: 1rem;
     line-height: 1.6;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     background-color: rgba(255, 255, 255, 0.8);
     padding: 15px;
     border-radius: 10px;
     position: relative;
-    overflow: hidden;
-    animation: fadeIn 2s ease-out forwards;
-    opacity: 0;
+    opacity: 0; /* Caché par défaut */
+    transform: translateY(20px); /* Commence légèrement décalé vers le bas */
+    transition: opacity 1s ease-out, transform 1s ease-out; /* Transition douce */
 }
 
+/* Ajouter cette classe pour les éléments visibles */
 p.visible {
     opacity: 1;
+    transform: translateY(0);
 }
 
+/* Texte mis en surbrillance */
 .highlight {
     color: var(--primary-color);
     font-weight: bold;
     text-shadow: 0 0 5px var(--primary-color);
 }
 
+/* Style pour la signature */
 .signature {
     font-family: 'Dancing Script', cursive;
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: var(--secondary-color);
-    margin-top: 2rem;
-    animation: fadeInUp 1.5s ease-out;
+    margin-top: 1.5rem;
+    animation: fadeInUp 1s ease-out;
 }
 
+/* Style du cœur animé */
 .heart {
     display: inline-block;
     color: var(--primary-color);
     animation: pulse 1.5s infinite;
 }
 
-.floating-element {
-    position: absolute;
-    opacity: 0.6;
-    pointer-events: none;
-    will-change: transform;
+/* Apparence personnalisée de la barre de défilement */
+body::-webkit-scrollbar {
+    width: 10px;
 }
 
-.star {
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-    animation: starTwinkle 3s infinite alternate;
+body::-webkit-scrollbar-track {
+    background: #ffe4e1; /* Couleur de la piste de défilement */
 }
 
-.balloon {
-    width: 40px;
-    height: 60px;
-    background: linear-gradient(135deg, var(--primary-color), #fff);
-    border-radius: 50% 50% 40% 40% / 50% 50% 40% 40%;
-    animation: float 10s ease-in-out infinite;
+body::-webkit-scrollbar-thumb {
+    background: var(--primary-color); /* Couleur de la barre de défilement */
+    border-radius: 10px;
 }
 
+body::-webkit-scrollbar-thumb:hover {
+    background: #ff1493; /* Couleur de la barre de défilement au survol */
+}
+
+/* Arrière-plan animé */
 @keyframes gradientBG {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
 
+/* Animation de l'apparition des titres */
 @keyframes fadeInDown {
     from {
         opacity: 0;
-        transform: translateY(-50px);
+        transform: translateY(-20px);
     }
     to {
         opacity: 1;
@@ -123,47 +134,32 @@ p.visible {
     }
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes glow {
-    from { text-shadow: 0 0 5px #fff, 0 0 10px var(--primary-color); }
-    to { text-shadow: 0 0 15px var(--primary-color), 0 0 30px var(--primary-color); }
-}
-
+/* Animation pour le cœur */
 @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.3); }
     100% { transform: scale(1); }
 }
 
-@keyframes starTwinkle {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
-}
-
+/* Style responsive */
 @media (max-width: 768px) {
     h1 {
-        font-size: 3rem;
+        font-size: 2rem;
     }
 
     h2 {
-        font-size: 2.5rem;
+        font-size: 1.8rem;
     }
 
     p {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
 
     .signature {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
+    }
+
+    .container {
+        padding: 1.5rem;
     }
 }
