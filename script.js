@@ -1,41 +1,29 @@
-// Crée des éléments flottants dynamiquement
-function createFloatingElement(className) {
-    const element = document.createElement('div');
-    element.className = `floating-element ${className}`;
-    element.style.left = Math.random() * 100 + 'vw';
-    element.style.top = Math.random() * 100 + 'vh';
-    element.style.width = Math.random() * 30 + 10 + 'px';
-    element.style.height = Math.random() * 30 + 10 + 'px';
-    element.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 70%)`;
-    element.style.animationDuration = (Math.random() * 10 + 5) + 's';
-    element.style.opacity = Math.random() * 0.6 + 0.4;
-    document.body.appendChild(element);
-}
+// script.js
 
-// Générer des étoiles et des ballons flottants
-for (let i = 0; i < 20; i++) {
-    createFloatingElement('star');
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const paragraphs = document.querySelectorAll('.container p');
 
-for (let i = 0; i < 10; i++) {
-    createFloatingElement('balloon');
-}
+    // Options pour l'observateur
+    const observerOptions = {
+        root: null, // Utilise le viewport par défaut
+        rootMargin: '0px',
+        threshold: 0.1 // 10% de l'élément doit être visible pour déclencher l'apparition
+    };
 
-for (let i = 0; i < 5; i++) {
-    createFloatingElement('confetti');
-}
+    // Création d'un observateur
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1'; // Rendre visible
+                entry.target.style.transform = 'translateY(0)'; // Position de base
+                entry.target.classList.add('visible'); // Ajoute la classe visible
+                observer.unobserve(entry.target); // Stopper l'observation après l'apparition
+            }
+        });
+    }, observerOptions);
 
-// Ajouter des animations au scroll
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-        }
+    // Observer chaque paragraphe
+    paragraphs.forEach(paragraph => {
+        observer.observe(paragraph);
     });
-}, {
-    threshold: 0.1
-});
-
-document.querySelectorAll('p').forEach(p => {
-    observer.observe(p);
 });
