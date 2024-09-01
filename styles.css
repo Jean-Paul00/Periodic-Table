@@ -18,6 +18,8 @@ body {
     background: linear-gradient(45deg, #ff9a9e, #fad0c4, #ffecd2);
     background-size: 400% 400%;
     animation: gradientBG 15s ease infinite;
+    perspective: 1px;
+    transform-style: preserve-3d;
 }
 
 .container {
@@ -28,36 +30,23 @@ body {
     position: relative;
     z-index: 1;
     overflow: hidden;
+    transform: translateZ(0.5px) scale(0.9);
 }
 
-h1 {
+h1, h2 {
     font-family: 'Dancing Script', cursive;
-    font-size: 4rem;
     color: var(--primary-color);
     margin-bottom: 2rem;
-    position: relative;
     animation: fadeInDown 1.5s ease-out, glow 2s ease-in-out infinite alternate;
     text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--primary-color), 0 0 40px var(--primary-color);
 }
 
-h1::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #ff69b4, #ffd700);
-    background-clip: text;
-    color: transparent;
-    z-index: -1;
-    animation: gradientText 5s linear infinite;
+h1 {
+    font-size: 4rem;
 }
 
-@keyframes gradientText {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+h2 {
+    font-size: 3rem;
 }
 
 p {
@@ -69,9 +58,12 @@ p {
     border-radius: 10px;
     position: relative;
     overflow: hidden;
-    animation: fadeIn 2s ease-out;
-    font-weight: 300;
-    color: var(--text-color);
+    animation: fadeIn 2s ease-out forwards;
+    opacity: 0;
+}
+
+p.visible {
+    opacity: 1;
 }
 
 .highlight {
@@ -86,17 +78,6 @@ p {
     color: var(--secondary-color);
     margin-top: 2rem;
     animation: fadeInUp 1.5s ease-out;
-    font-weight: bold;
-}
-
-.signature::before {
-    content: '';
-    display: block;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    margin: 10px auto;
-    border-radius: 2px;
 }
 
 .heart {
@@ -105,26 +86,16 @@ p {
     animation: pulse 1.5s infinite;
 }
 
-.confetti {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    background-color: var(--secondary-color);
-    animation: confettiRain 5s linear infinite;
-}
-
 .floating-element {
     position: absolute;
     opacity: 0.6;
     pointer-events: none;
+    will-change: transform;
 }
 
 .star {
-    width: 15px;
-    height: 15px;
-    background-color: #fff;
     clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-    animation: starTwinkle 2s infinite;
+    animation: starTwinkle 3s infinite alternate;
 }
 
 .balloon {
@@ -133,25 +104,6 @@ p {
     background: linear-gradient(135deg, var(--primary-color), #fff);
     border-radius: 50% 50% 40% 40% / 50% 50% 40% 40%;
     animation: float 10s ease-in-out infinite;
-}
-
-.cake {
-    width: 60px;
-    height: 60px;
-    background-color: #8B4513;
-    border-radius: 50% 50% 0 0;
-    position: relative;
-}
-
-.cake::after {
-    content: '';
-    position: absolute;
-    width: 10px;
-    height: 20px;
-    background-color: var(--secondary-color);
-    top: -15px;
-    left: 25px;
-    animation: candleFlicker 0.5s ease-in-out infinite alternate;
 }
 
 @keyframes gradientBG {
@@ -176,15 +128,9 @@ p {
     to { opacity: 1; }
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+@keyframes glow {
+    from { text-shadow: 0 0 5px #fff, 0 0 10px var(--primary-color); }
+    to { text-shadow: 0 0 15px var(--primary-color), 0 0 30px var(--primary-color); }
 }
 
 @keyframes pulse {
@@ -193,13 +139,10 @@ p {
     100% { transform: scale(1); }
 }
 
-@keyframes confettiRain {
-    0% {
-        transform: translateY(0) rotate(0deg);
-    }
-    100% {
-        transform: translateY(100vh) rotate(360deg);
-    }
+@keyframes starTwinkle {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
 }
 
 @keyframes float {
@@ -207,42 +150,13 @@ p {
     50% { transform: translateY(-20px); }
 }
 
-@keyframes glow {
-    from { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px var(--primary-color), 0 0 20px var(--primary-color); }
-    to { text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--primary-color), 0 0 40px var(--primary-color); }
-}
-
-@keyframes starTwinkle {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
-}
-
-@keyframes candleFlicker {
-    from { opacity: 0.5; }
-    to { opacity: 1; }
-}
-
-::-webkit-scrollbar {
-    width: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--background-color);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--secondary-color);
-}
-
 @media (max-width: 768px) {
     h1 {
         font-size: 3rem;
+    }
+
+    h2 {
+        font-size: 2.5rem;
     }
 
     p {
