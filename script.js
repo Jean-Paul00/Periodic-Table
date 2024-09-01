@@ -24,3 +24,18 @@ for (let i = 0; i < 10; i++) {
 for (let i = 0; i < 5; i++) {
     createFloatingElement('confetti');
 }
+
+// Ajouter des animations au scroll
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, {
+    threshold: 0.1
+});
+
+document.querySelectorAll('p').forEach(p => {
+    observer.observe(p);
+});
