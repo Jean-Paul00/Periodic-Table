@@ -1,28 +1,659 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Joyeux Anniversaire Cynthia</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <title>Tableau Périodique Interactif Ultime</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <style>
+body {
+    font-family: 'Roboto', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    /* Pas de overflow: hidden ici pour permettre le défilement */
+    scrollbar-width: thin; /* Pour Firefox */
+    scrollbar-color: #4f46e5 #e5e7eb; /* Pour Firefox */
+}
+
+/* Personnalisation des barres de défilement pour les navigateurs Webkit (Chrome, Safari, etc.) */
+::-webkit-scrollbar {
+    width: 8px; /* Largeur de la scrollbar verticale */
+    height: 8px; /* Hauteur de la scrollbar horizontale */
+}
+
+::-webkit-scrollbar-track {
+    background: #e5e7eb;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #4f46e5;
+    border-radius: 10px;
+    border: 2px solid transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #4338ca;
+}
+
+        #periodic-table-container {
+            overflow: auto;
+            max-height: calc(100vh - 200px);
+            -webkit-overflow-scrolling: touch;
+        }
+        #periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, minmax(40px, 1fr));
+            gap: 2px;
+            padding-bottom: 10px;
+        }
+        .element {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .element:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        .element .symbol {
+            font-weight: bold;
+            font-size: 1em;
+        }
+        .element .number {
+            font-size: 0.7em;
+        }
+        .element .name {
+            font-size: 0.6em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+        #element-details {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        #atom-model {
+            width: 100%;
+            height: 300px;
+        }
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #4f46e5 #e5e7eb;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 2px;
+            height: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #e5e7eb;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #4f46e5;
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #4338ca;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        .hidden {
+            display: none;
+        }
+        .backdrop-blur {
+            backdrop-filter: blur(5px);
+        }
+        .element-tooltip {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            pointer-events: none;
+            transition: all 0.2s ease;
+            z-index: 20;
+        }
+        #search-input {
+            transition: all 0.3s ease;
+        }
+        #search-input:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5);
+        }
+        .temperature-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #3b82f6, #ef4444);
+            outline: none;
+            transition: opacity 0.2s;
+        }
+        .temperature-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        .temperature-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 640px) {
+            .element {
+                font-size: 0.8em;
+            }
+            #periodic-table {
+                grid-template-columns: repeat(9, minmax(30px, 1fr));
+            }
+        }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Ma douce Cynthia</h1>
-        <p>En ce jour spécial qui célèbre ta venue au monde, <span class="highlight">mon cœur chante de joie</span> comme les anges dans les cieux. 🎶👼</p>
-        <p>Chaque jour passé à tes côtés est comme un petit miracle. Ton sourire illumine mon monde plus que le soleil lui-même 🌞, et ta gentillesse fait fleurir l'amour partout autour de toi. 💖</p>
-        <p>Tu es ce <span class="highlight">rayon de soleil qui réchauffe les cœurs</span>, un trésor que Dieu a façonné avec tant de soin et d'amour. ✨🙏</p>
-        <p>J'espère que ce message te fera sourire autant que tu me fais sourire chaque jour. 😊</p>
-        <p>Tu es profondément aimée, non seulement par notre Créateur, mais aussi par moi, d'un amour sincère et tendre. 💌</p>
-        <p>Ta présence est une <span class="highlight">bénédiction, douce et apaisante</span>. 🌿</p>
-        <p>Que cette nouvelle année t'apporte des moments de bonheur, de rires et de douceur. 🌟</p>
-        <p>Que chaque jour soit une raison de sourire et de rendre grâce pour toutes les bénédictions qui t'entourent. 🙌</p>
-        <h2>Joyeux anniversaire, ma chère Cynthia. 🎂🎉</h2>
-        <p>Tu es un trésor inestimable, et je remercie Dieu chaque jour pour le cadeau précieux que tu es dans ma vie. 🎁🙏</p>
-        <p class="signature">Avec tout mon amour et une tendresse infinie, <span class="heart">❤️</span><br>Jean-Paul</p>
+<body class="bg-gradient-to-r from-blue-100 to-purple-100 text-gray-800">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl md:text-5xl font-bold text-center mb-8 text-indigo-600 pulse">Tableau Périodique Interactif Ultime</h1>
+        
+        <div class="mb-6 flex flex-wrap justify-center items-center gap-4">
+            <div class="relative">
+                <select id="category-filter" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-indigo-500 transition duration-300 ease-in-out">
+                    <option value="all">Toutes les catégories</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                </div>
+            </div>
+            <input id="search-input" type="text" placeholder="Rechercher un élément..." class="w-64 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <button id="toggle-view" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:scale-105">
+                Vue Compacte
+            </button>
+            <button id="random-element" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:scale-105">
+                Élément Aléatoire
+            </button>
+            <button id="toggle-quiz" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:scale-105">
+                Mode Quiz
+            </button>
+            <button id="toggle-temperature" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:scale-105">
+                Simulation de Température
+            </button>
+        </div>
+        
+        <div id="temperature-controls" class="mb-6 hidden">
+            <input type="range" id="temperature-slider" class="temperature-slider" min="0" max="6000" value="293" step="1">
+            <p id="temperature-display" class="text-center mt-2">Température actuelle: 293 K (20°C)</p>
+        </div>
+
+        <div id="periodic-table-container" class="bg-white p-4 rounded-lg shadow-lg custom-scrollbar">
+            <div id="periodic-table"></div>
+        </div>
+
+        <div id="element-details" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden backdrop-blur">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+                <div id="detail-content" class="custom-scrollbar"></div>
+                <button id="close-details" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition duration-300 ease-in-out">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="quiz-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden backdrop-blur">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+                <h2 class="text-2xl font-bold mb-4">Quiz du Tableau Périodique</h2>
+                <div id="quiz-content"></div>
+                <button id="submit-quiz" class="mt-4 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out">
+                    Soumettre
+                </button>
+                <button id="close-quiz" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition duration-300 ease-in-out">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        let periodicTableData;
+        let isCompactView = false;
+        let quizQuestions = [];
+        let quizAnswers = {};
+        let currentTemperature = 293; // Kelvin
+        let isTemperatureMode = false;
+
+        async function fetchPeriodicTableData() {
+            const response = await fetch('https://raw.githubusercontent.com/Bowserinator/Periodic-Table-JSON/master/PeriodicTableJSON.json');
+            const data = await response.json();
+            return data.elements;
+        }
+
+        function createPeriodicTable(elements) {
+            const table = document.getElementById('periodic-table');
+            table.innerHTML = '';
+            const categories = new Set();
+
+            elements.forEach(element => {
+                const elementDiv = document.createElement('div');
+                elementDiv.className = `element ${isCompactView ? 'text-xs' : 'text-sm'} cursor-pointer transition-all duration-300 ease-in-out`;
+                elementDiv.style.gridColumn = element.xpos;
+                elementDiv.style.gridRow = element.ypos;
+                elementDiv.style.backgroundColor = `#${element['cpk-hex']}`;
+                elementDiv.innerHTML = `
+                    <div class="number">${element.number}</div>
+                    <div class="symbol">${element.symbol}</div>
+                    ${isCompactView ? '' : `<div class="name">${element.name}</div>`}
+                `;
+                elementDiv.addEventListener('click', () => showElementDetails(element));
+                elementDiv.addEventListener('mouseover', (e) => showTooltip(e, element));
+                elementDiv.addEventListener('mouseout', hideTooltip);
+                table.appendChild(elementDiv);
+
+                categories.add(element.category);
+            });
+
+            populateCategoryFilter(Array.from(categories));
+        }
+
+        function showTooltip(event, element) {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'element-tooltip';
+            tooltip.innerHTML = `
+                <strong>${element.name}</strong><br>
+                Masse atomique: ${element.atomic_mass.toFixed(2)}<br>
+                Catégorie: ${element.category}
+            `;
+            document.body.appendChild(tooltip);
+
+            const updatePosition = (e) => {
+                const rect = event.target.getBoundingClientRect();
+                tooltip.style.left = `${rect.left}px`;
+                tooltip.style.top = `${rect.bottom + 5}px`;
+            };
+
+            updatePosition(event);
+            event.target.addEventListener('mousemove', updatePosition);
+        }
+
+        function hideTooltip() {
+            const tooltip = document.querySelector('.element-tooltip');
+            if (tooltip) {
+                tooltip.remove();
+            }
+        }
+
+        function populateCategoryFilter(categories) {
+            const filter = document.getElementById('category-filter');
+            filter.innerHTML = '<option value="all">Toutes les catégories</option>';
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                filter.appendChild(option);
+            });
+        }
+
+        function filterElements() {
+            const selectedCategory = document.getElementById('category-filter').value;
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const elements = document.querySelectorAll('.element');
+            elements.forEach(element => {
+                const elementData = periodicTableData.find(e => e.symbol === element.querySelector('.symbol').textContent);
+                const categoryMatch = selectedCategory === 'all' || elementData.category === selectedCategory;
+                const searchMatch = elementData.name.toLowerCase().includes(searchTerm) || 
+                                    elementData.symbol.toLowerCase().includes(searchTerm) ||
+                                    elementData.number.toString().includes(searchTerm);
+                
+                if (categoryMatch && searchMatch) {
+                    element.style.display = 'flex';
+                    gsap.to(element, { opacity: 1, scale: 1, duration: 0.3 });
+                } else {
+                    gsap.to(element, { 
+                        opacity: 0, 
+                        scale: 0.8, 
+                        duration: 0.3, 
+                        onComplete: () => { element.style.display = 'none'; }
+                    });
+                }
+            });
+        }
+
+        function showElementDetails(element) {
+            const detailsDiv = document.getElementById('element-details');
+            const contentDiv = document.getElementById('detail-content');
+            contentDiv.innerHTML = `
+                <h2 class="text-3xl font-bold mb-4 text-indigo-600">${element.name} (${element.symbol})</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p><strong>Numéro atomique:</strong> ${element.number}</p>
+                        <p><strong>Masse atomique:</strong> ${element.atomic_mass.toFixed(4)}</p>
+                        <p><strong>Catégorie:</strong> ${element.category}</p>
+                        <p><strong>Phase:</strong> ${element.phase}</p>
+                        <p><strong>Découvert par:</strong> ${element.discovered_by || 'Inconnu'}</p>
+                    </div>
+                    <div>
+                        <p><strong>Densité:</strong> ${element.density || 'N/A'} g/cm³</p>
+                        <p><strong>Point de fusion:</strong> ${element.melt || 'N/A'} K</p>
+                        <p><strong>Point d'ébullition:</strong> ${element.boil || 'N/A'} K</p>
+                        <p><strong>Période:</strong> ${element.period}</p>
+                        <p><strong>Groupe:</strong> ${element.group || 'N/A'}</p>
+                    </div>
+                </div>
+                <p class="mt-4"><strong>Résumé:</strong> ${element.summary || 'Aucun résumé disponible.'}</p>
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-2">Configuration électronique</h3>
+                    <canvas id="electron-chart" width="400" height="200"></canvas>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-2">Modèle atomique 3D</h3>
+                    <div id="atom-model"></div>
+                </div>
+            `;
+            detailsDiv.classList.remove('hidden');
+            gsap.from(contentDiv, { opacity: 0, y: 50, duration: 0.5, ease: "power2.out" });
+            createElectronChart(element);
+            createAtomModel(element);
+        }
+
+        function createElectronChart(element) {
+            const ctx = document.getElementById('electron-chart').getContext('2d');
+            const shells = element.shells;
+            const data = shells.map((electrons, index) => ({
+                shell: index + 1,
+                electrons: electrons
+            }));
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => `Couche ${d.shell}`),
+                    datasets: [{
+                        label: 'Électrons',
+                        data: data.map(d => d.electrons),
+                        backgroundColor: 'rgba(99, 102, 241, 0.6)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre d\'électrons'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Couches électroniques'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Distribution des électrons par couche'
+                        }
+                    }
+                }
+            });
+        }
+
+        function createAtomModel(element) {
+            const container = document.getElementById('atom-model');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.innerHTML = '';
+            container.appendChild(renderer.domElement);
+
+            const nucleus = new THREE.Mesh(
+                new THREE.SphereGeometry(0.5, 32, 32),
+                new THREE.MeshPhongMaterial({ color: 0xff0000, emissive: 0xaa0000, specular: 0x111111, shininess: 30 })
+            );
+            scene.add(nucleus);
+
+            const electronGeometry = new THREE.SphereGeometry(0.1, 32, 32);
+            const electronMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff, emissive: 0x000033, specular: 0x111111, shininess: 30 });
+            
+            const electrons = [];
+            element.shells.forEach((shellElectrons, shellIndex) => {
+                const shellRadius = (shellIndex + 1) * 1;
+                for (let i = 0; i < shellElectrons; i++) {
+                    const angle = (i / shellElectrons) * Math.PI * 2;
+                    const electron = new THREE.Mesh(electronGeometry, electronMaterial);
+                    electron.position.set(
+                        Math.cos(angle) * shellRadius,
+                        Math.sin(angle) * shellRadius,
+                        0
+                    );
+                    scene.add(electron);
+                    electrons.push({ mesh: electron, shell: shellIndex, angle: angle });
+                }
+            });
+
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+
+            const light = new THREE.PointLight(0xffffff, 1, 100);
+            light.position.set(10, 10, 10);
+            scene.add(light);
+
+            camera.position.z = 5;
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                electrons.forEach(electron => {
+                    electron.angle += 0.01 * (electron.shell + 1);
+                    const shellRadius = (electron.shell + 1) * 1;
+                    electron.mesh.position.x = Math.cos(electron.angle) * shellRadius;
+                    electron.mesh.position.y = Math.sin(electron.angle) * shellRadius;
+                });
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        function startQuiz() {
+            quizQuestions = generateQuizQuestions();
+            displayQuizQuestion(0);
+            document.getElementById('quiz-modal').classList.remove('hidden');
+            gsap.from('#quiz-modal > div', { opacity: 0, y: 50, duration: 0.5, ease: "power2.out" });
+        }
+
+        function generateQuizQuestions() {
+            const questions = [];
+            const usedElements = new Set();
+            for (let i = 0; i < 5; i++) {
+                let randomElement;
+                do {
+                    randomElement = periodicTableData[Math.floor(Math.random() * periodicTableData.length)];
+                } while (usedElements.has(randomElement.number));
+                usedElements.add(randomElement.number);
+
+                const questionType = Math.floor(Math.random() * 5);
+                let question, answer;
+
+                switch (questionType) {
+                    case 0:
+                        question = `Quel est le symbole chimique de l'élément ${randomElement.name} ?`;
+                        answer = randomElement.symbol;
+                        break;
+                    case 1:
+                        question = `Quel est le numéro atomique de l'élément ${randomElement.name} ?`;
+                        answer = randomElement.number.toString();
+                        break;
+                    case 2:
+                        question = `À quelle catégorie appartient l'élément ${randomElement.name} ?`;
+                        answer = randomElement.category;
+                        break;
+                    case 3:
+                        question = `Quelle est la masse atomique approximative de l'élément ${randomElement.name} ? (arrondie à l'entier le plus proche)`;
+                        answer = Math.round(randomElement.atomic_mass).toString();
+                        break;
+                    case 4:
+                        question = `Dans quelle période du tableau périodique se trouve l'élément ${randomElement.name} ?`;
+                        answer = randomElement.period.toString();
+                        break;
+                }
+
+                questions.push({ question, answer, element: randomElement });
+            }
+            return questions;
+        }
+
+        function displayQuizQuestion(index) {
+            const quizContent = document.getElementById('quiz-content');
+            if (index < quizQuestions.length) {
+                const question = quizQuestions[index];
+                quizContent.innerHTML = `
+                    <p class="mb-2"><strong>Question ${index + 1}:</strong> ${question.question}</p>
+                    <input type="text" id="quiz-answer-${index}" class="w-full p-2 border border-gray-300 rounded-md">
+                `;
+                gsap.from('#quiz-content > *', { opacity: 0, y: 20, duration: 0.5, stagger: 0.1, ease: "power2.out" });
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            const quizContent = document.getElementById('quiz-content');
+            let correctAnswers = 0;
+            let resultsHTML = '<h3 class="text-xl font-bold mb-4">Résultats du Quiz</h3>';
+
+            quizQuestions.forEach((question, index) => {
+                const userAnswer = quizAnswers[index] || '';
+                const isCorrect = userAnswer.toLowerCase() === question.answer.toLowerCase();
+                if (isCorrect) correctAnswers++;
+
+                resultsHTML += `
+                    <div class="mb-4 p-4 ${isCorrect ? 'bg-green-100' : 'bg-red-100'} rounded-md">
+                        <p><strong>Question ${index + 1}:</strong> ${question.question}</p>
+                        <p><strong>Votre réponse:</strong> ${userAnswer}</p>
+                        <p><strong>Réponse correcte:</strong> ${question.answer}</p>
+                    </div>
+                `;
+            });
+
+            resultsHTML += `
+                <p class="text-xl font-bold mt-4">Score final: ${correctAnswers} / ${quizQuestions.length}</p>
+            `;
+
+            quizContent.innerHTML = resultsHTML;
+            document.getElementById('submit-quiz').classList.add('hidden');
+            gsap.from('#quiz-content > *', { opacity: 0, y: 20, duration: 0.5, stagger: 0.1, ease: "power2.out" });
+        }
+
+        function updateTemperature() {
+            const temperatureSlider = document.getElementById('temperature-slider');
+            const temperatureDisplay = document.getElementById('temperature-display');
+            currentTemperature = parseInt(temperatureSlider.value);
+            const celsiusTemperature = currentTemperature - 273;
+            temperatureDisplay.textContent = `Température actuelle: ${currentTemperature} K (${celsiusTemperature}°C)`;
+
+            periodicTableData.forEach(element => {
+                const elementDiv = document.querySelector(`.element:nth-child(${element.number})`);
+                if (elementDiv) {
+                    let phase = 'solid';
+                    if (element.melt && currentTemperature >= element.melt) {
+                        phase = 'liquid';
+                    }
+                    if (element.boil && currentTemperature >= element.boil) {
+                        phase = 'gas';
+                    }
+                    elementDiv.style.opacity = phase === 'gas' ? '0.5' : '1';
+                    elementDiv.style.border = phase === 'liquid' ? '2px solid #3b82f6' : 'none';
+                }
+            });
+        }
+
+        document.getElementById('close-details').addEventListener('click', () => {
+            gsap.to('#element-details', { opacity: 0, duration: 0.3, onComplete: () => {
+                document.getElementById('element-details').classList.add('hidden');
+            }});
+        });
+
+        document.getElementById('category-filter').addEventListener('change', filterElements);
+        document.getElementById('search-input').addEventListener('input', filterElements);
+
+        document.getElementById('toggle-view').addEventListener('click', () => {
+            isCompactView = !isCompactView;
+            createPeriodicTable(periodicTableData);
+            document.getElementById('toggle-view').textContent = isCompactView ? 'Vue Détaillée' : 'Vue Compacte';
+        });
+
+        document.getElementById('random-element').addEventListener('click', () => {
+            const randomElement = periodicTableData[Math.floor(Math.random() * periodicTableData.length)];
+            showElementDetails(randomElement);
+        });
+
+        document.getElementById('toggle-quiz').addEventListener('click', startQuiz);
+
+        document.getElementById('submit-quiz').addEventListener('click', () => {
+            const currentIndex = Object.keys(quizAnswers).length;
+            quizAnswers[currentIndex] = document.getElementById(`quiz-answer-${currentIndex}`).value;
+            displayQuizQuestion(currentIndex + 1);
+        });
+
+        document.getElementById('close-quiz').addEventListener('click', () => {
+            gsap.to('#quiz-modal', { opacity: 0, duration: 0.3, onComplete: () => {
+                document.getElementById('quiz-modal').classList.add('hidden');
+                quizAnswers = {};
+            }});
+        });
+
+       document.getElementById('toggle-temperature').addEventListener('click', () => {
+            const temperatureControls = document.getElementById('temperature-controls');
+            temperatureControls.classList.toggle('hidden');
+            if (!temperatureControls.classList.contains('hidden')) {
+                updateTemperature();
+            }
+        });
+
+        document.getElementById('temperature-slider').addEventListener('input', updateTemperature);
+
+        // Initialisation
+        async function init() {
+            periodicTableData = await fetchPeriodicTableData();
+            createPeriodicTable(periodicTableData);
+        }
+
+        init();
+    </script>
 </body>
 </html>
